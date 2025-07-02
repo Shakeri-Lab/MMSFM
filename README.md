@@ -38,27 +38,32 @@ The result is a single, continuous model of the system's dynamics that can gener
 1.  **Clone the repository:**
 
     ```bash
-    git clone https://github.com/your-username/MMSFM.git
+    git clone https://github.com/Shakeri-Lab/MMSFM.git
     cd MMSFM
     ```
 
 2.  **Create Conda Environment:**
-    We recommend using Conda to manage dependencies.
+    We recommend using Conda to manage dependencies. We used Python 3.10 to develop our code.
 
     ```bash
-    conda env create -f environment.yml
-    conda activate mmsfm
-    ```
+    ## Create in default venv directory
+    conda create -n mmsfmvenv python=3.10
 
-    Alternatively, you can use pip:
-
-    ```bash
-    pip install -r requirements.txt
+    ## OR create in current directory
+    conda create -p ./mmsfmvenv python=3.10
     ```
+    Then activate using either `conda activate mmsfmvenv` or `conda activate ./mmsfmvenv` depending on the virtual environment location.
+
+3. **Installation:**
+    Run `make_venv.sh` which will install the necessary packages. It will first download `MIOFlow` and `torchcfm` from their respective GitHub repositories. In particular, the script will download the specific archived commits from the respective `MIOFlow` and `torchcfm` packages that we used at the time of development in order to maintain reproducability. We also pin the specific versions of each package in `requirements.txt` for the same reason. Next, the script will install the packages in `requirements.txt`, followed by the `MIOFlow`, `torchcfm`, and our code. These latter three packages will be installed in editable mode.
+
+    The `MIOFlow` commit hash is `1b09f2c7eefefcd75891d44bf86c00a4904a0b05`.
+
+    The `torchcfm` commit hash is `af8fec6f6dc3a0dc7f8fb25d2ee0ca819fa5412f`.
 
     [cite\_start]Our implementation uses PyTorch, POT (Python Optimal Transport), and torchsde[cite: 596, 599, 613].
 
-3.  **Download Data:**
+4.  **Download Data:**
     Run the provided scripts to download and preprocess the datasets used in the paper.
 
     ```bash
