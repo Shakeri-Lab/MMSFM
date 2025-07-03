@@ -65,7 +65,7 @@ The result is a single, continuous model of the system's dynamics that can gener
 
 4.  **Download Data:**
     In order to use the single cell datasets for CITEseq and Multiome, you will first need to download the following files from the
-    [Multimodal Single-Cell Integration](kaggle.com/competitions/open-problems-multimodal) Kaggle competition:
+    [Multimodal Single-Cell Integration](https://kaggle.com/competitions/open-problems-multimodal) Kaggle competition:
     - `metadata.csv`
     - `train_cite_inputs.h5`
     - `test_cite_inputs.h5`
