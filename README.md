@@ -64,10 +64,31 @@ The result is a single, continuous model of the system's dynamics that can gener
     [cite\_start]Our implementation uses PyTorch, POT (Python Optimal Transport), and torchsde[cite: 596, 599, 613].
 
 4.  **Download Data:**
-    Run the provided scripts to download and preprocess the datasets used in the paper.
+    In order to use the single cell datasets for CITEseq and Multiome, you will first need to download the following files from the
+    [Multimodal Single-Cell Integration](kaggle.com/competitions/open-problems-multimodal) Kaggle competition:
+    - `metadata.csv`
+    - `train_cite_inputs.h5`
+    - `test_cite_inputs.h5`
+    - `train_multi_targets.h5`
+
+    These files must be saved to `data/`.
+
+    The `data/datagen.py` script can generate the synthetic datasets and generate the corresponding scatter plots.
+    It can also preprocess the single cell datasets using the top 50 and 100 PCA components, as well as the top 1000 highly variable genes.
+    You can run the script as follows:
 
     ```bash
-    python -m data.download_all
+    cd data
+    ## You should be located at <rootdir>/mmsfm/data/
+
+    ## To only generate synthetic data
+    python -m datagen.py --datasets synth
+
+    ## To only preprocess single cell data
+    python -m datagen.py --datasets real
+
+    ## To do both
+    python -m datagen.py --datasets synth real
     ```
 
 ## Running Experiments
