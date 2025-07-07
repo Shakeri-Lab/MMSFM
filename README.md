@@ -93,7 +93,34 @@ The result is a single, continuous model of the system's dynamics that can gener
 
 ## Running Experiments
 
-You can train a new MMSFM model using `train.py`.
+You can train a new MMSFM model using [`scripts/main.py`](scripts/main.py).
+Given the large number of possible arguments, we provide a simple runner script in [`runner.sh`](runner.sh) where you can easily set the desired hyperparameters.
+Don't forget to update the `WANDBARGS` in `runner.sh` to either include your entity and project names, or to set the `--no_wandb` flag to disable wandb for that run.
+Whether you choose to directly call `scripts/main.py` or use `runner.sh`, please do so from the base directory `<rootdir>/mmsfm/`.
+Either way, you will train the model, generate some sample trajectories, and create some evaluation and visualization plots.
+
+**Example: Training the Triplet model on S-shaped Gaussians**
+```bash
+## pwd shoud output <rootdir>/mmsfm/
+
+## Directly calling scripts/main.py
+python scripts/main.py \
+    --dataname sg \
+    --flowmatcher sb \
+    --agent_type triplet \
+    --spline cubic \
+    --modelname mlp \
+    --batch_size 64 \
+    --n_steps 1000 \
+    --n_epochs 5 \
+    --lr 1e-4 \
+    --zt 0 1 2 3 4 5 6 \
+    --no_wandb \
+    --outdir sg
+
+## Using the provided helper runner script
+./runner.sh
+```
 
 **Example: Training the Triplet model on Imagenette**
 
