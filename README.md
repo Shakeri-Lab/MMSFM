@@ -55,7 +55,12 @@ The result is a single, continuous model of the system's dynamics that can gener
     Then activate using either `conda activate mmsfmvenv` or `conda activate ./mmsfmvenv` depending on the virtual environment location.
 
 3. **Installation:**
-    Run `make_venv.sh` which will install the necessary packages. It will first download `MIOFlow` and `torchcfm` from their respective GitHub repositories. In particular, the script will download the specific archived commits from the respective `MIOFlow` and `torchcfm` packages that we used at the time of development in order to maintain reproducability. We also pin the specific versions of each package in `requirements.txt` for the same reason. Next, the script will install the packages in `requirements.txt`, followed by the `MIOFlow`, `torchcfm`, and our code. These latter three packages will be installed in editable mode.
+    Run [`make_venv.sh`](make_venv.sh) which will install the necessary packages.
+    It will first download `MIOFlow` and `torchcfm` from their respective GitHub repositories.
+    In particular, the script will download the specific archived commits from the respective `MIOFlow` and `torchcfm` packages that we used at the time of development in order to maintain reproducability.
+    We also pin the specific versions of each package in `requirements.txt` for the same reason.
+    Next, the script will install the packages in `requirements.txt`, followed by the `MIOFlow`, `torchcfm`, and our code.
+    These latter three packages will be installed in editable mode.
 
     The `MIOFlow` commit hash is `1b09f2c7eefefcd75891d44bf86c00a4904a0b05`.
 
@@ -73,8 +78,12 @@ The result is a single, continuous model of the system's dynamics that can gener
 
     These files must be saved to `data/`.
 
-    The `data/datagen.py` script can generate the synthetic datasets and generate the corresponding scatter plots.
-    It can also preprocess the single cell datasets using the top 50 and 100 PCA components, as well as the top 1000 highly variable genes.
+    The [`data/datagen.py`](data/datagen.py) script can do 3 things:
+
+    1. Generate the synthetic datasets and draw the corresponding scatter plots.
+    2. Preprocess the single cell datasets using the top 50 and 100 PCA components, as well as the top 1000 highly variable genes.
+    3. Download if necessary, then preprocess the CIFAR-10 and Imagenette datasets for easier loading. Downloading is handled via Torchvision's in-built datasets.
+
     You can run the script as follows:
 
     ```bash
@@ -87,9 +96,14 @@ The result is a single, continuous model of the system's dynamics that can gener
     ## To only preprocess single cell data
     python -m datagen.py --datasets real
 
-    ## To do both
-    python -m datagen.py --datasets synth real
+    ## To only download and preprocess CIFAR-10 and Imagenette data
+    python -m datagen.py --datasets images
+
+    ## To do all
+    python -m datagen.py --datasets synth real images
     ```
+    You should only have to run this script once, given an issue with how Torchvision checks whether a dataset has already been downloaded for Imagenette.
+    [See here](https://github.com/pytorch/vision/pull/8638) for the relevant issue.
 
 ## Running Experiments
 

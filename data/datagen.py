@@ -7,6 +7,11 @@ from sklearn.datasets import make_moons
 from sklearn.decomposition import PCA
 from sklearn.model_selection import train_test_split
 import scanpy as sc
+import torch
+import torchvision
+from torchvision.transforms import v2
+from tqdm import tqdm
+import joblib
 
 
 ####################### Synth Data Gen Functions #######################
@@ -128,14 +133,14 @@ def load_citeseq():
     cite_meta = metadata[idx]
     cite_meta = cite_meta[cite_meta['donor'] == 13176]
 
-    cite_df_cell_ids = set(cite_df.index)
-    cite_df2_cell_ids = set(cite_df2.index)
+    cite_df_cell_ids = set(cite_df.index)  # type: ignore
+    cite_df2_cell_ids = set(cite_df2.index)  # type: ignore
     ts = [2, 3, 4, 7]
 
     nt = {}  # get counts at each time
     cite_df_all = pd.DataFrame(
         index=pd.Index(data=[], name='cell_id'),
-        columns=cite_df.columns
+        columns=cite_df.columns  # type: ignore
     )
     for t in ts:
         t_idx = cite_meta['day'] == t
@@ -144,8 +149,8 @@ def load_citeseq():
         cell_ids = set(cite_meta_t['cell_id'])
         valid_ids = list(cite_df_cell_ids & cell_ids)
         valid_ids2 = list(cite_df2_cell_ids & cell_ids)
-        cite_df_t = cite_df.loc[valid_ids]
-        cite_df2_t = cite_df2.loc[valid_ids2]
+        cite_df_t = cite_df.loc[valid_ids]  # type: ignore
+        cite_df2_t = cite_df2.loc[valid_ids2]  # type: ignore
         cite_df_all = pd.concat([cite_df_all, cite_df_t, cite_df2_t])
 
     nt_vals = [nt[t] for t in sorted(nt.keys())]
@@ -162,13 +167,13 @@ def load_multiome():
     mult_meta = metadata[idx]
     mult_meta = mult_meta[mult_meta['donor'] == 13176]
 
-    mult_df_cell_ids = set(mult_df.index)
+    mult_df_cell_ids = set(mult_df.index)  # type: ignore
     ts = [2, 3, 4, 7]
 
     nt = {}  # get counts at each time
     mult_df_all = pd.DataFrame(
         index=pd.Index(data=[], name='cell_id'),
-        columns=mult_df.columns
+        columns=mult_df.columns  # type: ignore
     )
     for t in ts:
         t_idx = mult_meta['day'] == t
@@ -176,7 +181,7 @@ def load_multiome():
         mult_meta_t = mult_meta[t_idx]
         cell_ids = set(mult_meta_t['cell_id'])
         valid_ids = list(mult_df_cell_ids & cell_ids)
-        mult_df_t = mult_df.loc[valid_ids]
+        mult_df_t = mult_df.loc[valid_ids]  # type: ignore
         mult_df_all = pd.concat([mult_df_all, mult_df_t])
 
     nt_vals = [nt[t] for t in sorted(nt.keys())]
@@ -209,7 +214,7 @@ def preprocess_hivars(df_all, nt_vals_cumsum, n_top_genes, seed=None):
     adata = sc.AnnData(df_all)
 
     tmp = sc.pp.highly_variable_genes(adata, n_top_genes=n_top_genes, inplace=False)
-    hi_vars = tmp[tmp['highly_variable']].index
+    hi_vars = tmp[tmp['highly_variable']].index  # type: ignore
     df_hi_vars = df_all[hi_vars]
     hivars_list = np.vsplit(df_hi_vars, nt_vals_cumsum)[:-1]
 
@@ -240,7 +245,104 @@ def save_sc_data(train_list, test_list, name):
 ########################################################################
 
 
-################### CITEseq & Multiome Preprocessing ###################
+################# CIFAR10 and Imagenette Preprocessing #################
+########################################################################
+def load_cifar10(root='./cifar10/', download=False):
+    transform = v2.Compose([
+        v2.PILToTensor(),
+        v2.ToDtype(torch.float32, scale=True),
+        v2.Normalize((0.5, 0.5, 0.5), (0.5, 0.5, 0.5))
+    ])
+
+    trainset = torchvision.datasets.CIFAR10(
+        root=root,
+        train=True,
+        transform=transform,
+        download=download
+    )
+
+    ## No need to download if trainset was downloaded
+    testset = torchvision.datasets.CIFAR10(
+        root=root,
+        train=False,
+        transform=transform,
+        download=False
+    )
+
+    classes = (
+        'airplane', 'automobile', 'bird', 'cat', 'deer',
+        'dog', 'frog', 'horse', 'ship', 'truck'
+    )
+
+    return trainset, testset, classes
+
+
+def load_imagenette(size, root='./imagenette/', download=False):
+    transform = v2.Compose([
+        v2.PILToTensor(),
+        v2.ToDtype(torch.float32, scale=True),
+        v2.Resize((size, size)),
+        v2.Normalize((0.5, 0.5, 0.5), (0.5, 0.5, 0.5))
+    ])
+
+    trainset = torchvision.datasets.Imagenette(
+        root=root,
+        split='train',
+        size='full',
+        download=download,
+        transform=transform
+    )
+
+    ## No need to download if trainset was downloaded
+    testset = torchvision.datasets.Imagenette(
+        root=root,
+        split='val',
+        size='full',
+        download=False,
+        transform=transform
+    )
+
+    classes = (
+        'tench', 'English springer', 'cassette player',
+        'chain saw', 'church', 'French horn', 'garbage truck',
+        'gas pump', 'golf ball', 'parachute'
+    )
+
+    return trainset, testset, classes
+
+
+def group_by_class(dataset, classes, datasetname):
+    tmp = [[] for _ in classes]
+    for i in tqdm(range(len(dataset)), f'Group {datasetname} by class'):
+        x, y = dataset[i]
+        Xc = tmp[y]
+        Xc.append(x)
+
+    X = [torch.stack(Xc) for Xc in tmp]
+    return X
+
+
+def group_cifar10_by_class(download=False):
+    trainset, testset, classes = load_cifar10(root='./cifar10/', download=download)
+    train_by_class = group_by_class(trainset, classes, 'CIFAR10 Trainset')
+    test_by_class = group_by_class(testset, classes, 'CIFAR10 Testset')
+
+    joblib.dump(train_by_class, f'./cifar10/trainset.pkl')
+    joblib.dump(test_by_class, f'./cifar10/testset.pkl')
+
+
+def group_imagenette_by_class(size, download=False):
+    trainset, testset, classes = load_imagenette(size, root='./imagenette/', download=download)
+    train_by_class = group_by_class(trainset, classes, f'Imagenette{size} Trainset')
+    test_by_class = group_by_class(testset, classes, f'Imagenette{size} Testset')
+
+    joblib.dump(train_by_class, f'./imagenette/trainset{size}.pkl')
+    joblib.dump(test_by_class, f'./imagenette/testset{size}.pkl')
+########################################################################
+########################################################################
+
+
+######################## Preprocessing Runners #########################
 ########################################################################
 def create_plot_synth_datasets():
     N = 20000     # N samples
@@ -347,15 +449,30 @@ def preprocess_singlecell():
     for train_list, test_list, savename in \
             zip(train_list_list, test_list_list, savenames):
         save_sc_data(train_list, test_list, savename)
+
+
+def preprocess_images():
+    ## call both load fns with download=True first
+    ## because for some reason the download=True flag does not
+    ## correctly load an already downloaded dataset for Imagenette
+    ## github.com/pytorch/vision/pull/8638
+    load_cifar10(download=True)
+    load_imagenette(32, download=True)
+
+    ## Group by class for easier loading during training
+    group_cifar10_by_class(download=False)
+    for size in [32, 64, 128]:
+        group_imagenette_by_class(size, download=False)
 ########################################################################
 ########################################################################
+
 
 def main():
     import argparse
 
     parser = argparse.ArgumentParser()
     parser.add_argument('--datasets', type=str, nargs='+', required=True,
-                        choices=['synth', 'real'])
+                        choices=['synth', 'real', 'images'])
     args = parser.parse_args()
 
     if 'synth' in args.datasets:
@@ -363,6 +480,9 @@ def main():
 
     if 'real' in args.datasets:
         preprocess_singlecell()
+
+    if 'images' in args.datasets:
+        preprocess_images()
 
 
 if __name__ == '__main__':
