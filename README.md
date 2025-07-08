@@ -107,7 +107,8 @@ The result is a single, continuous model of the system's dynamics that can gener
 
 ## Running Experiments
 
-You can train a new MMSFM model using [`scripts/main.py`](scripts/main.py).
+### Synthetic and Single-cell Data
+You can train a new MMSFM model for the synthetic and single-cell data using [`scripts/main.py`](scripts/main.py).
 Given the large number of possible arguments, we provide a simple runner script in [`runner.sh`](runner.sh) where you can easily set the desired hyperparameters.
 Don't forget to update the `WANDBARGS` in `runner.sh` to either include your entity and project names, or to set the `--no_wandb` flag to disable wandb for that run.
 Whether you choose to directly call `scripts/main.py` or use `runner.sh`, please do so from the base directory `<rootdir>/mmsfm/`.
@@ -136,25 +137,43 @@ python scripts/main.py \
 ./runner.sh
 ```
 
-**Example: Training the Triplet model on Imagenette**
+### CIFAR-10 and Imagenette Data
+Given some differences in the datatypes (especially size of the data) as well as evaluations and plots, we provide a second script for training a MMSFM model for the image datasets found at [`scripts/images/images_main.py`](scripts/images/images_main.py).
+Likewise, we also provide a simple runner script in [`image_runner.sh`](image_runner.sh), which also contains a `WANDBARGS` argument list as well as a `no_wandb` flag.
+Again, please call either the python script or runner script from the base directory `<rootdir>/mmsfm/`.
 
+This version of the trainer additionally implements accumulated gradients as well as a method to checkpoint and resume training.
+We submitted jobs using the Slurm job scheduler, which gave us access to the remaining walltime.
+We used this information to programatically exit the training loop and set up a checkpoint to prevent timeout issues.
+If not submitting jobs through Slurm, we assume the remaining walltime is practically unlimited at 999 days.
+
+**Example: Training the Triplet model on CIFAR-10**
 ```bash
-python train.py \
-    --model Triplet \
-    --dataset Imagenette \
-    --data_path ./data/imagenette \
-    --batch_size 64 \
-    --lr 1e-4 \
-    --epochs 250
-```
+## pwd shoud output <rootdir>/mmsfm/
 
-**Example: Generating trajectories from a trained model**
+## Directly calling scripts/images/images_main.py
+python scripts/images/images_main.py \
+    train eval plot \
+    --dataname cifar10 \
+    --size 32 \
+    --window_size 2 \
+    --spline cubic \
+    --monotonic \
+    --score_matching \
+    --zt 0 1 2 3 \
+    --progression 2 4 6 8 \
+    --batch_size 16 \
+    --accum_steps 2 \
+    --n_steps 20 \
+    --n_epochs 10 \
+    --lr 1e-8 1e-4 \
+    --save_interval 2 \
+    --ckpt_interval 2 \
+    --no_wandb \
+    --outdir cifar10
 
-```bash
-python evaluate.py \
-    --checkpoint_path ./checkpoints/imagenette_triplet.pt \
-    --num_samples 16 \
-    --output_dir ./results/imagenette_trajs
+## Using the provided helper runner script
+./image_runner.sh
 ```
 
 ## Citation
