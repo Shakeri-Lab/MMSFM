@@ -1,0 +1,25 @@
+# Ignore venv and package directories
+mmsfmvenv/
+MIOFlow/
+conditional-flow-matching/
+
+# Ignore cache and temp directories
+__pycache__/
+*.egg-info/
+*.ipynb_checkpoints/
+
+# Ignore data files but keep data generation script
+data/*
+!data/datagen.py
+
+# Keep results directory but ignore everything inside it
+results/*
+
+# Ignore slurm files
+*.slurm
+
+# Ignore log files from slurm
+logs/
+
+# Ignore local WandB directory
+wandb/

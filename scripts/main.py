@@ -26,6 +26,7 @@ import wandb
 @timer_func
 def main():
     parser = argparse.ArgumentParser()
+
     ### Training Args ###
     parser.add_argument('--dataname', '-d', type=str, required=True,
                         choices=['sg', 'alphag',
@@ -231,6 +232,7 @@ def main():
         config=args,  # type: ignore
         mode=wandb_mode,
         id=run_id,
+        name=run_name,
         resume='allow'
     )
     agent.set_run(run)

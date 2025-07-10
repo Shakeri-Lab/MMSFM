@@ -54,6 +54,7 @@ WANDBARGS=\
 "\
     --entity <YOUR ENTITY HERE> \
     --project <YOUR PROJECT HERE> \
+    --run_name sg
 "
     #--no_wandb
 

@@ -48,11 +48,12 @@ The result is a single, continuous model of the system's dynamics that can gener
     ```bash
     ## Create in default venv directory
     conda create -n mmsfmvenv python=3.10
+    conda activate mmsfmvenv
 
     ## OR create in current directory
     conda create -p ./mmsfmvenv python=3.10
+    conda activate ./mmsfmvenv
     ```
-    Then activate using either `conda activate mmsfmvenv` or `conda activate ./mmsfmvenv` depending on the virtual environment location.
 
 3. **Installation:**
     Run [`make_venv.sh`](make_venv.sh) which will install the necessary packages.
@@ -88,19 +89,19 @@ The result is a single, continuous model of the system's dynamics that can gener
 
     ```bash
     cd data
-    ## You should be located at <rootdir>/mmsfm/data/
+    ## You should be located at <rootdir>/MMSFM/data/
 
     ## To only generate synthetic data
-    python -m datagen.py --datasets synth
+    python datagen.py --datasets synth
 
     ## To only preprocess single cell data
-    python -m datagen.py --datasets real
+    python datagen.py --datasets real
 
     ## To only download and preprocess CIFAR-10 and Imagenette data
-    python -m datagen.py --datasets images
+    python datagen.py --datasets images
 
     ## To do all
-    python -m datagen.py --datasets synth real images
+    python datagen.py --datasets synth real images
     ```
     You should only have to run this script once, given an issue with how Torchvision checks whether a dataset has already been downloaded for Imagenette.
     [See here](https://github.com/pytorch/vision/pull/8638) for the relevant issue.
@@ -111,12 +112,12 @@ The result is a single, continuous model of the system's dynamics that can gener
 You can train a new MMSFM model for the synthetic and single-cell data using [`scripts/main.py`](scripts/main.py).
 Given the large number of possible arguments, we provide a simple runner script in [`runner.sh`](runner.sh) where you can easily set the desired hyperparameters.
 Don't forget to update the `WANDBARGS` in `runner.sh` to either include your entity and project names, or to set the `--no_wandb` flag to disable wandb for that run.
-Whether you choose to directly call `scripts/main.py` or use `runner.sh`, please do so from the base directory `<rootdir>/mmsfm/`.
+Whether you choose to directly call `scripts/main.py` or use `runner.sh`, please do so from the base directory `<rootdir>/MMSFM/`.
 Either way, you will train the model, generate some sample trajectories, and create some evaluation and visualization plots.
 
 **Example: Training the Triplet model on S-shaped Gaussians**
 ```bash
-## pwd shoud output <rootdir>/mmsfm/
+## pwd shoud output <rootdir>/MMSFM/
 
 ## Directly calling scripts/main.py
 python scripts/main.py \
@@ -140,7 +141,7 @@ python scripts/main.py \
 ### CIFAR-10 and Imagenette Data
 Given some differences in the datatypes (especially size of the data) as well as evaluations and plots, we provide a second script for training a MMSFM model for the image datasets found at [`scripts/images/images_main.py`](scripts/images/images_main.py).
 Likewise, we also provide a simple runner script in [`image_runner.sh`](image_runner.sh), which also contains a `WANDBARGS` argument list as well as a `no_wandb` flag.
-Again, please call either the python script or runner script from the base directory `<rootdir>/mmsfm/`.
+Again, please call either the python script or runner script from the base directory `<rootdir>/MMSFM/`.
 
 This version of the trainer additionally implements accumulated gradients as well as a method to checkpoint and resume training.
 We submitted jobs using the Slurm job scheduler, which gave us access to the remaining walltime.
@@ -149,7 +150,7 @@ If not submitting jobs through Slurm, we assume the remaining walltime is practi
 
 **Example: Training the Triplet model on CIFAR-10**
 ```bash
-## pwd shoud output <rootdir>/mmsfm/
+## pwd shoud output <rootdir>/MMSFM/
 
 ## Directly calling scripts/images/images_main.py
 python scripts/images/images_main.py \

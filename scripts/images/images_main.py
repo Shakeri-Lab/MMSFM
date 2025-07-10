@@ -198,6 +198,7 @@ def main():
     parser.add_argument('--save_interval', type=int, default=10)
     parser.add_argument('--ckpt_interval', type=int, default=10)
     parser.add_argument('--checkpoint', type=str, default='ckpt')
+
     ## Inference Args
     parser.add_argument('--n_infer', type=int, default=10)
     parser.add_argument('--t_infer', type=int, default=9)
