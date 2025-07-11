@@ -22,15 +22,31 @@ The result is a single, continuous model of the system's dynamics that can gener
 
 ```
 .
-├── data/                 # Scripts to download and preprocess datasets
-├── notebooks/            # Jupyter notebooks for visualization and analysis
-├── src/
-│   ├── models.py         # Core MMSFM model and network architectures
-│   ├── dataloaders.py    # Data loading utilities
-│   └── splines.py        # Implementation of transport splines
-├── train.py              # Main script to train a new model
-├── evaluate.py           # Script to evaluate a trained model and generate trajectories
-└── environment.yml       # Conda environment file
+├── data/
+│   └── datagen.py                    # Script to download and preprocess datasets
+├── mmsfm/
+│   ├── models/
+│   │   └── models.py                 # Network architectures
+│   ├── multimarginal_cfm.py          # Core implementation of multi-marginal flow matcher w/ splines
+│   └── multimarginal_otsampler.py    # Implementation of (ordered) multi-marginal optimal transport
+├── scripts/                          # Contains scripts for training models
+│   ├── main.py                       # Core training script for synthetic and single-cell data
+│   ├── modelagent.py                 # Contains logic for training, evaluation, and inference
+│   ├── plotter.py                    # Plotting utilities for training losses, evaluations, and trajectories
+│   ├── utils.py
+│   └── images/                       # Contains scripts for training models on image datasets
+│       ├── images_main.py            # Core training script for class progression task on image data
+│       ├── images_train.py           # Contains training logic
+│       ├── images_eval.py            # Contains inference logic
+│       ├── images_plot.py            # Contains plotting logic for losses and trajectories
+│       └── images_utils.py
+├── README.md
+├── pyproject.toml
+├── requirements.txt                  # Environment file w/ all package versions pinned
+├── make_venv.sh                      # Helper script to install this package
+├── runner.sh                         # Helper script to call scripts/main.py
+├── image_runner.sh                   # Helper script to call scripts/images/image_main.py
+└── .gitignore
 ```
 
 ## Setup and Installation
